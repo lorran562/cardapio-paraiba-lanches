@@ -3,142 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<title>Braseiro Artesanal</title>
+<title>Braseiro Trevisan — Hamburgueria Artesanal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800;900&family=Anton&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0A0A0A;color:#F5F5F5;font-family:'Barlow',sans-serif;max-width:480px;margin:0 auto;padding-bottom:100px;min-height:100vh}
+:root{
+  --red:#E10E0E;--red2:#B30000;--gold:#F4A300;--dark:#0A0A0A;--card:#161616;
+}
+body{
+  background:#0A0A0A;color:#fff;
+  font-family:'Barlow',sans-serif;
+  max-width:480px;margin:0 auto;padding-bottom:100px;min-height:100vh;
+  background-image:radial-gradient(circle at 0% 0%,rgba(225,14,14,.08),transparent 50%),radial-gradient(circle at 100% 100%,rgba(225,14,14,.05),transparent 50%);
+}
 
 #loading{position:fixed;inset:0;background:#0A0A0A;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-.spin{width:40px;height:40px;border:3px solid rgba(200,24,26,.2);border-top-color:#C8181A;border-radius:50%;animation:spin .8s linear infinite}
+.spin{width:40px;height:40px;border:3px solid rgba(225,14,14,.2);border-top-color:#E10E0E;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-#header{position:sticky;top:0;z-index:40;padding:14px 16px 10px;background:linear-gradient(#0A0A0A 85%,transparent)}
-.h-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.h-icon{width:44px;height:44px;border-radius:50%;background:#C8181A;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.h-name{font-family:'Bebas Neue';font-size:22px;letter-spacing:1px;line-height:1}
-.h-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px}
-.h-mesa{margin-left:auto;background:#1A1A1A;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:5px 12px;text-align:center}
-.h-mesa-label{font-size:8px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px}
-.h-mesa-num{font-family:'Bebas Neue';font-size:20px;color:#D4A017;line-height:1}
-#cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+/* HEADER */
+#header{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,#0A0A0A 90%,transparent);padding:14px 14px 8px}
+.h-logo{
+  background:linear-gradient(135deg,#E10E0E 0%,#0A0A0A 60%);
+  border-radius:14px;padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;
+  border:1px solid rgba(225,14,14,.3);
+  box-shadow:0 4px 20px rgba(225,14,14,.2);
+}
+.h-fire{font-size:32px;flex-shrink:0;filter:drop-shadow(0 0 8px rgba(255,140,0,.5))}
+.h-brand{flex:1;min-width:0}
+.h-tag{font-size:9px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase}
+.h-name{font-family:'Anton',sans-serif;font-size:24px;letter-spacing:1.5px;line-height:1;margin-top:2px;color:#fff}
+.h-sub{font-size:10px;color:rgba(255,255,255,.6);margin-top:3px}
+.h-mesa{flex-shrink:0;background:rgba(0,0,0,.4);border:1px solid rgba(244,163,0,.4);border-radius:10px;padding:6px 12px;text-align:center;backdrop-filter:blur(10px)}
+.h-mesa-l{font-size:8px;color:rgba(244,163,0,.9);text-transform:uppercase;letter-spacing:1.5px;font-weight:800}
+.h-mesa-n{font-family:'Bebas Neue';font-size:22px;color:#F4A300;line-height:1}
+
+#cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
 #cats::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 14px;font:700 11px 'Barlow';background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);cursor:pointer}
-.cat-btn.active{background:#C8181A;color:#fff;border-color:#C8181A}
+.cat-btn{flex-shrink:0;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:6px 14px;font:800 11px 'Barlow';letter-spacing:.3px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.55);cursor:pointer;transition:all .15s;text-transform:uppercase}
+.cat-btn.active{background:linear-gradient(135deg,#E10E0E,#B30000);color:#fff;border-color:#E10E0E;box-shadow:0 3px 12px rgba(225,14,14,.4)}
 
-.sec-head{padding:18px 16px 10px;display:flex;align-items:center;gap:10px}
-.sec-line{flex:1;height:1px;background:rgba(255,255,255,.06)}
-.sec-label{font-family:'Bebas Neue';font-size:15px;color:rgba(255,255,255,.3);letter-spacing:2px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px}
+/* SECTION */
+.sec-head{padding:20px 14px 10px;display:flex;align-items:center;gap:10px}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(225,14,14,.4),transparent)}
+.sec-label{font-family:'Anton',sans-serif;font-size:18px;color:#fff;letter-spacing:3px;white-space:nowrap}
+.sec-label .em{color:#E10E0E}
 
-.p-card{background:#161616;border-radius:16px;border:1.5px solid rgba(255,255,255,.07);overflow:hidden;display:flex;flex-direction:column}
-.p-card.in-cart{border-color:rgba(200,24,26,.4)}
-.p-img{height:105px;background:radial-gradient(circle at 40% 35%,#2a0a0a,#0d0d0d);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
-.p-badge{position:absolute;top:0;left:0;right:0;background:linear-gradient(90deg,#C8181A,#FF4500);font-size:8px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#fff;text-align:center;padding:3px 0}
-.p-chip{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:#C8181A;color:#fff;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center}
+/* CARD HORIZONTAL — IGUAL AO CARDÁPIO IMPRESSO */
+.p-card{
+  margin:0 14px 12px;
+  background:linear-gradient(135deg,#161616 0%,#0d0d0d 100%);
+  border-radius:14px;border:1.5px solid rgba(255,255,255,.06);
+  overflow:hidden;display:flex;
+  position:relative;
+  transition:all .2s;
+}
+.p-card.in-cart{border-color:#E10E0E;box-shadow:0 4px 16px rgba(225,14,14,.25)}
+.p-card.special{border-left:4px solid #E10E0E}
+
+/* Imagem do produto - lado direito */
+.p-img{
+  width:120px;flex-shrink:0;
+  background:radial-gradient(circle at 50% 40%,#3a0a0a 0%,#1a0505 70%,#0a0303 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:64px;position:relative;
+  border-left:1px solid rgba(225,14,14,.15);
+}
+.p-img::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%,rgba(255,150,0,.15),transparent 60%);
+  pointer-events:none;
+}
+.p-badge{position:absolute;top:6px;right:6px;background:linear-gradient(135deg,#F4A300,#E10E0E);font-size:8px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:#fff;padding:3px 7px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2}
+.p-chip{position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:#E10E0E;color:#fff;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #fff;z-index:2}
 .p-card.in-cart .p-chip{display:flex}
 
-.p-info{padding:10px 10px 0;flex:1;display:flex;flex-direction:column}
-.p-name{font-family:'Bebas Neue';font-size:14px;letter-spacing:.3px;line-height:1.15;margin-bottom:4px}
-.p-desc{font-size:10px;color:rgba(255,255,255,.45);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
-.p-price-row{display:flex;align-items:baseline;gap:3px;margin-top:auto;padding-top:4px}
-.p-from{font-size:8px;color:rgba(255,255,255,.45);text-transform:uppercase}
-.p-price{font-family:'Bebas Neue';font-size:20px;color:#C8181A;line-height:1}
+/* Lado esquerdo - info */
+.p-info{flex:1;padding:12px 12px 10px;display:flex;flex-direction:column;min-width:0}
+.p-name{font-family:'Anton',sans-serif;font-size:15px;letter-spacing:.5px;line-height:1.1;color:#E10E0E;text-transform:uppercase}
+.p-name.gold{color:#F4A300}
+.p-desc{font-size:10px;color:rgba(255,255,255,.55);line-height:1.45;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
+/* PRICE BOXES estilo cardápio */
+.p-prices{display:flex;gap:6px;margin-top:8px}
+.p-pricebox{
+  flex:1;background:#E10E0E;
+  border-radius:6px;padding:4px 8px;
+  text-align:center;
+  box-shadow:0 2px 6px rgba(225,14,14,.3);
+}
+.p-pricebox.gold{background:linear-gradient(135deg,#F4A300,#E10E0E)}
+.p-pricebox-label{font-size:7px;font-weight:900;color:#fff;letter-spacing:.8px;text-transform:uppercase;line-height:1}
+.p-pricebox-val{font-family:'Bebas Neue';font-size:16px;color:#F4A300;line-height:1.1;letter-spacing:.5px}
+.p-pricebox-val small{font-size:9px;font-weight:700}
+
+/* Tags de variantes selecionadas */
 .var-tags{display:flex;flex-direction:column;gap:3px;margin-top:6px}
-.var-tag{display:flex;align-items:center;justify-content:space-between;background:rgba(200,24,26,.07);border:1px solid rgba(200,24,26,.15);border-radius:6px;padding:3px 7px;font-size:9px;color:rgba(255,255,255,.65);font-weight:700}
-.var-tag button{background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer}
+.var-tag{display:flex;align-items:center;justify-content:space-between;background:rgba(225,14,14,.1);border:1px solid rgba(225,14,14,.25);border-radius:5px;padding:3px 7px;font-size:9px;color:#fff;font-weight:700}
+.var-tag button{background:none;border:none;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;padding:0 1px}
 
-.p-footer{padding:10px}
-.btn-add{width:100%;padding:10px;border:none;border-radius:10px;background:#C8181A;color:#fff;font:800 12px 'Barlow';cursor:pointer;box-shadow:0 3px 10px rgba(200,24,26,.3)}
+/* FOOTER DO CARD - botão sempre visível */
+.p-footer{padding:0 12px 10px;margin-top:8px}
+.btn-add{
+  width:100%;padding:10px;border:none;border-radius:8px;
+  background:linear-gradient(135deg,#E10E0E,#B30000);
+  color:#fff;font:800 12px 'Barlow';letter-spacing:.5px;
+  cursor:pointer;text-transform:uppercase;
+  box-shadow:0 3px 10px rgba(225,14,14,.4);
+  transition:all .12s;
+}
 .btn-add:active{transform:scale(.95)}
-.qty{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.qty-btn{width:34px;height:34px;border-radius:10px;border:none;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.qty-btn.m{background:rgba(255,255,255,.09);color:#fff}
-.qty-btn.p{background:#C8181A;color:#fff}
-.qty-n{font-family:'Bebas Neue';font-size:20px;color:#fff}
+.qty{display:flex;align-items:center;justify-content:space-between}
+.qty-btn{width:34px;height:34px;border-radius:8px;border:none;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-btn.m{background:rgba(255,255,255,.08);color:#fff}
+.qty-btn.p{background:linear-gradient(135deg,#E10E0E,#B30000);color:#fff;box-shadow:0 2px 8px rgba(225,14,14,.4)}
+.qty-n{font-family:'Bebas Neue';font-size:22px;color:#F4A300}
 
-#bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#141414;border-top:1px solid rgba(255,255,255,.07);padding:10px 16px 14px;z-index:50}
-.empty{text-align:center;font-size:12px;color:rgba(255,255,255,.2);padding:6px 0}
-#cart-btn{display:none;width:100%;padding:14px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#C8181A,#FF4500);align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 24px rgba(200,24,26,.4)}
+/* CART BAR */
+#bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:linear-gradient(180deg,rgba(10,10,10,.95),#0A0A0A);border-top:1px solid rgba(225,14,14,.2);padding:10px 14px 14px;z-index:50;backdrop-filter:blur(10px)}
+.empty{text-align:center;font-size:12px;color:rgba(255,255,255,.25);padding:8px 0;font-weight:600}
+#cart-btn{display:none;width:100%;padding:14px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#E10E0E,#B30000);align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 6px 24px rgba(225,14,14,.5);transition:transform .12s}
 #cart-btn.on{display:flex}
-.cb-count{background:rgba(0,0,0,.2);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
-.cb-label{font-family:'Bebas Neue';font-size:19px;color:#fff;letter-spacing:2px}
-.cb-total{font-family:'Bebas Neue';font-size:18px;color:#fff}
+#cart-btn:active{transform:scale(.97)}
+.cb-count{background:rgba(0,0,0,.3);border:2px solid #F4A300;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#F4A300}
+.cb-label{font-family:'Anton',sans-serif;font-size:18px;color:#fff;letter-spacing:2px}
+.cb-total{font-family:'Bebas Neue';font-size:20px;color:#F4A300}
 
-.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.87);display:flex;flex-direction:column;justify-content:flex-end}
-.sheet{background:#1A1A1A;border-radius:26px 26px 0 0;padding:18px 18px 28px;max-height:88vh;overflow-y:auto}
-.handle{width:36px;height:4px;background:rgba(255,255,255,.12);border-radius:2px;margin:0 auto 16px}
-.st{font-family:'Bebas Neue';font-size:22px;letter-spacing:1px;margin-bottom:14px}
+/* OVERLAYS */
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.9);display:flex;flex-direction:column;justify-content:flex-end}
+.sheet{background:linear-gradient(180deg,#1A1A1A,#0d0d0d);border-radius:24px 24px 0 0;padding:18px 18px 28px;max-height:88vh;overflow-y:auto;border-top:2px solid rgba(225,14,14,.3)}
+.handle{width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 18px}
+.st{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:14px;color:#E10E0E;text-transform:uppercase}
 
-.opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;border-radius:12px;margin-bottom:8px;background:#252525;border:2px solid transparent;cursor:pointer}
-.opt.sel{background:rgba(200,24,26,.1);border-color:#C8181A}
+.opt{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 14px;border-radius:10px;margin-bottom:8px;background:#252525;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.opt.sel{background:linear-gradient(135deg,rgba(225,14,14,.15),rgba(244,163,0,.1));border-color:#E10E0E}
 .opt-l{display:flex;align-items:center;gap:10px}
-.rd{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.opt.sel .rd{background:#C8181A;border-color:#C8181A}
-.rd-d{width:7px;height:7px;border-radius:50%;background:#fff;display:none}
+.rd{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.opt.sel .rd{background:#E10E0E;border-color:#F4A300}
+.rd-d{width:8px;height:8px;border-radius:50%;background:#fff;display:none}
 .opt.sel .rd-d{display:block}
-.opt-lab{font-weight:700;font-size:14px;color:rgba(255,255,255,.75)}
+.opt-lab{font-weight:700;font-size:15px;color:rgba(255,255,255,.75)}
 .opt.sel .opt-lab{color:#fff}
-.opt-pr{font-family:'Bebas Neue';font-size:19px;color:rgba(255,255,255,.35)}
-.opt.sel .opt-pr{color:#C8181A}
-#var-ok{width:100%;padding:14px;border:none;border-radius:14px;font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px}
+.opt-pr{font-family:'Bebas Neue';font-size:20px;color:rgba(255,255,255,.4)}
+.opt.sel .opt-pr{color:#F4A300}
+#var-ok{width:100%;padding:14px;border:none;border-radius:12px;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:6px;text-transform:uppercase}
 
 .oi{display:flex;gap:10px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06)}
-.oi-e{font-size:28px;flex-shrink:0}
-.oi-n{font-size:13px;font-weight:700}
-.oi-v{display:inline-block;margin-top:3px;font-size:10px;font-weight:700;color:#C8181A;background:rgba(200,24,26,.1);border-radius:4px;padding:1px 6px}
-.oi-s{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px}
-.oi-t{margin-left:auto;font-family:'Bebas Neue';font-size:19px;color:#C8181A}
-.tot-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid rgba(255,255,255,.1);margin-bottom:16px}
-.tl{font-size:14px;font-weight:700;color:rgba(255,255,255,.4)}
-.tv{font-family:'Bebas Neue';font-size:30px;color:#C8181A}
-.btn-fin{width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#C8181A,#FF4500);font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;color:#fff;cursor:pointer}
-.btn-bk{width:100%;padding:10px;border:none;background:transparent;font:600 13px 'Barlow';color:rgba(255,255,255,.3);cursor:pointer;margin-top:4px}
+.oi-e{font-size:30px;flex-shrink:0;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#3a0a0a,#0a0303);border-radius:8px;border:1px solid rgba(225,14,14,.2)}
+.oi-n{font-size:13px;font-weight:800;line-height:1.2;color:#fff}
+.oi-v{display:inline-block;margin-top:3px;font-size:10px;font-weight:800;color:#F4A300;background:rgba(244,163,0,.1);border-radius:4px;padding:2px 7px;letter-spacing:.5px}
+.oi-s{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
+.oi-t{margin-left:auto;font-family:'Bebas Neue';font-size:20px;color:#E10E0E;align-self:flex-start;padding-top:2px}
 
-#succ{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}
+.tot-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:2px solid rgba(225,14,14,.2);margin-bottom:16px;background:rgba(225,14,14,.04);padding:14px 12px;border-radius:10px}
+.tl{font-size:14px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px}
+.tv{font-family:'Bebas Neue';font-size:32px;color:#F4A300}
+
+.btn-fin{width:100%;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#E10E0E,#B30000);font-family:'Anton',sans-serif;font-size:20px;letter-spacing:2.5px;color:#fff;cursor:pointer;text-transform:uppercase;box-shadow:0 6px 24px rgba(225,14,14,.5);transition:transform .12s}
+.btn-fin:active{transform:scale(.97)}
+.btn-bk{width:100%;padding:12px;border:none;background:transparent;font:600 13px 'Barlow';color:rgba(255,255,255,.35);cursor:pointer;margin-top:4px}
+
+#succ{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.97);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;background-image:radial-gradient(circle at 50% 30%,rgba(225,14,14,.15),transparent 60%)}
 #succ.on{display:flex}
-.s-i{font-size:64px;margin-bottom:14px}
-.s-t{font-family:'Bebas Neue';font-size:36px;color:#C8181A;margin-bottom:6px}
-.s-s{font-size:15px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:20px}
-.s-n{font-family:'Bebas Neue';font-size:60px;color:#fff;line-height:1}
-.s-nl{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;margin-bottom:28px}
-.btn-v{background:#C8181A;color:#fff;border:none;padding:14px 36px;border-radius:14px;font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;cursor:pointer}
+.s-i{font-size:72px;margin-bottom:16px;animation:bounce .6s ease;filter:drop-shadow(0 0 20px rgba(255,140,0,.5))}
+.s-t{font-family:'Anton',sans-serif;font-size:36px;color:#E10E0E;margin-bottom:8px;letter-spacing:2px;text-transform:uppercase}
+.s-s{font-size:15px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:24px}
+.s-n{font-family:'Bebas Neue';font-size:64px;color:#F4A300;line-height:1;text-shadow:0 0 20px rgba(244,163,0,.4)}
+.s-nl{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;margin-bottom:32px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.btn-v{background:linear-gradient(135deg,#E10E0E,#B30000);color:#fff;border:none;padding:14px 36px;border-radius:12px;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;box-shadow:0 4px 16px rgba(225,14,14,.4)}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 
-#sv{position:fixed;top:16px;right:16px;z-index:400;background:#1A1A1A;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;font-size:12px;color:rgba(255,255,255,.6);display:none;align-items:center;gap:6px}
+#sv{position:fixed;top:16px;right:16px;z-index:400;background:#1A1A1A;border:1px solid rgba(225,14,14,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,.7);display:none;align-items:center;gap:8px;font-weight:700}
 #sv.on{display:flex}
-.sp{width:14px;height:14px;border:2px solid rgba(200,24,26,.2);border-top-color:#C8181A;border-radius:50%;animation:spin .6s linear infinite}
+.sp{width:14px;height:14px;border:2px solid rgba(225,14,14,.2);border-top-color:#E10E0E;border-radius:50%;animation:spin .6s linear infinite}
+
+/* HERO */
+.hero-section{padding:0 14px 4px}
+.hero-pill{background:linear-gradient(135deg,rgba(225,14,14,.15),rgba(244,163,0,.05));border:1px solid rgba(225,14,14,.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.hero-icon{font-size:18px}
+.hero-text{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;line-height:1.4}
+.hero-text strong{color:#F4A300}
 </style>
 </head>
 <body>
 
 <div id="loading">
   <div class="spin"></div>
-  <div style="font-size:13px;color:rgba(255,255,255,.3)">Carregando...</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.4);font-weight:600">Carregando cardápio...</div>
 </div>
 
 <div id="sv"><div class="sp"></div>Enviando pedido...</div>
 
 <div id="header" style="display:none">
-  <div class="h-top">
-    <div class="h-icon">🔥</div>
-    <div>
-      <div class="h-name">Braseiro Artesanal</div>
-      <div class="h-sub">🟢 Aberto · Ariquemes/RO</div>
+  <div class="h-logo">
+    <div class="h-fire">🔥</div>
+    <div class="h-brand">
+      <div class="h-tag">Hamburgueria Artesanal</div>
+      <div class="h-name">BRASEIRO TREVISAN</div>
+      <div class="h-sub">🟢 Aberto agora · Ariquemes/RO</div>
     </div>
     <div class="h-mesa">
-      <div class="h-mesa-label">Mesa</div>
-      <div class="h-mesa-num" id="mn">01</div>
+      <div class="h-mesa-l">Mesa</div>
+      <div class="h-mesa-n" id="mn">01</div>
     </div>
   </div>
-  <div id="cats"></div>
+
+  <div class="hero-section">
+    <div class="hero-pill">
+      <div class="hero-icon">🎁</div>
+      <div class="hero-text"><strong>COMBO:</strong> Adicione Batata + Refri ao seu lanche e ganhe desconto especial!</div>
+    </div>
+  </div>
+
+  <div id="cats" style="margin-top:10px"></div>
 </div>
 
 <div id="screen" style="display:none"></div>
 
 <div id="bar" style="display:none">
-  <div class="empty" id="emp">Nenhum item adicionado</div>
+  <div class="empty" id="emp">🛒 Adicione itens ao seu pedido</div>
   <button id="cart-btn" onclick="openOrder()">
     <div class="cb-count" id="cb-c">0</div>
     <div class="cb-label">VER PEDIDO</div>
@@ -149,11 +234,11 @@ body{background:#0A0A0A;color:#F5F5F5;font-family:'Barlow',sans-serif;max-width:
 <div class="ov" id="var-ov" style="display:none" onclick="if(event.target===this)closeVar()">
   <div class="sheet">
     <div class="handle"></div>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-      <div id="v-e" style="font-size:44px"></div>
-      <div>
-        <div id="v-n" style="font-family:'Bebas Neue';font-size:19px;line-height:1.1"></div>
-        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">Escolha o tamanho</div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px">
+      <div id="v-e" style="font-size:48px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#3a0a0a,#0a0303);border-radius:12px;border:1px solid rgba(225,14,14,.3);flex-shrink:0"></div>
+      <div style="min-width:0">
+        <div id="v-n" style="font-family:'Anton',sans-serif;font-size:18px;line-height:1.1;color:#E10E0E;text-transform:uppercase;letter-spacing:.5px"></div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:600">Escolha o tamanho</div>
       </div>
     </div>
     <div id="v-opts"></div>
@@ -170,18 +255,18 @@ body{background:#0A0A0A;color:#F5F5F5;font-family:'Barlow',sans-serif;max-width:
       <span class="tl" id="ord-c">0 itens</span>
       <span class="tv" id="ord-tv">R$ 0,00</span>
     </div>
-    <button class="btn-fin" onclick="finalizar()">✅ FINALIZAR PEDIDO</button>
-    <button class="btn-bk" onclick="closeOrd()">← Voltar ao cardápio</button>
+    <button class="btn-fin" onclick="finalizar()">🔥 ENVIAR PEDIDO</button>
+    <button class="btn-bk" onclick="closeOrd()">← Continuar comprando</button>
   </div>
 </div>
 
 <div id="succ">
   <div class="s-i">🔥</div>
   <div class="s-t">PEDIDO ENVIADO!</div>
-  <div class="s-s">Chegou na cozinha!<br>Estamos preparando tudo 😊</div>
+  <div class="s-s">Seu pedido caiu direto na cozinha.<br>Estamos preparando tudo na brasa! 🍔</div>
   <div class="s-n" id="s-n">#001</div>
   <div class="s-nl">Número do seu pedido</div>
-  <button class="btn-v" onclick="reset()">FAZER NOVO PEDIDO</button>
+  <button class="btn-v" onclick="reset()">Fazer novo pedido</button>
 </div>
 
 <script>
@@ -195,6 +280,7 @@ document.getElementById('ord-t').textContent=`SEU PEDIDO · MESA ${String(MESA).
 
 let CATS=[],PRODS=[],VARS=[],cart=[],vP=null,vS=null;
 const fmt=n=>'R$ '+n.toFixed(2).replace('.',',');
+const fmtPrice=n=>n.toFixed(2).replace('.',',');
 const ckey=(id,o)=>o?`${id}_${o}`:String(id);
 
 async function load(){
@@ -205,7 +291,10 @@ async function load(){
       sb.from('variants').select('*')
     ]);
     CATS=cr.data||[];PRODS=pr.data||[];VARS=vr.data||[];
-    if(!PRODS.length){alert('Nenhum produto cadastrado. Execute o SQL no Supabase.');return;}
+    if(!PRODS.length){
+      document.getElementById('loading').innerHTML='<div style="color:#E10E0E;padding:20px;text-align:center;font-weight:700">Cardápio vazio.<br>Execute o SQL no Supabase.</div>';
+      return;
+    }
     render();
     document.getElementById('loading').style.display='none';
     document.getElementById('header').style.display='';
@@ -213,7 +302,7 @@ async function load(){
     document.getElementById('bar').style.display='';
   }catch(e){
     console.error(e);
-    document.getElementById('loading').innerHTML='<div style="color:#C8181A;padding:20px;text-align:center">Erro ao conectar ao banco.<br>Verifique o Supabase.</div>';
+    document.getElementById('loading').innerHTML='<div style="color:#E10E0E;padding:20px;text-align:center;font-weight:700">Erro ao conectar.<br>Verifique a internet.</div>';
   }
 }
 
@@ -224,7 +313,7 @@ function render(){
     const b=document.createElement('button');
     b.className='cat-btn';b.dataset.id=c.id;
     b.textContent=`${c.icon} ${c.name}`;
-    b.onclick=()=>{document.querySelector(`[data-sec="${c.id}"]`)?.scrollIntoView({behavior:'smooth'});setCat(c.id);};
+    b.onclick=()=>{document.querySelector(`[data-sec="${c.id}"]`)?.scrollIntoView({behavior:'smooth',block:'start'});setCat(c.id);};
     cE.appendChild(b);
   });
   const s=document.getElementById('screen');
@@ -234,11 +323,8 @@ function render(){
     if(!items.length)return;
     const sec=document.createElement('div');
     sec.dataset.sec=c.id;
-    sec.innerHTML=`<div class="sec-head"><div class="sec-line"></div><div class="sec-label">${c.icon} ${c.name}</div><div class="sec-line"></div></div>`;
-    const g=document.createElement('div');
-    g.className='grid';
-    items.forEach(p=>g.appendChild(makeCard(p)));
-    sec.appendChild(g);
+    sec.innerHTML=`<div class="sec-head"><div class="sec-line"></div><div class="sec-label">${c.icon} <span class="em">${c.name.toUpperCase()}</span></div><div class="sec-line"></div></div>`;
+    items.forEach(p=>sec.appendChild(makeCard(p)));
     s.appendChild(sec);
   });
   if(CATS[0])setCat(CATS[0].id);
@@ -250,23 +336,54 @@ function makeCard(p){
   const hasOpts=vs.length>0;
   const d=document.createElement('div');
   d.className='p-card';d.id='c-'+p.id;
+  if(p.badge==='ESPECIAL'||p.badge==='PREMIUM'||p.badge==='IMPERDÍVEL')d.classList.add('special');
+
   const nm=p.name.replace(/^Braseiro /i,'');
+  const isCombo=p.category_id===2;
+  const useGold=['Camarão','4 Queijos','Gorgonzola','Tentação','Combo Perfeito'].some(x=>p.name.includes(x));
+
+  // Verifica se as variantes são tamanhos (Simples/Duplo)
+  const sizesPair=vs.length===2&&(vs[0].label.includes('Simples')||vs[0].label.includes('Duplo')||vs[0].label.includes('P -'));
+
+  let pricesHTML='';
+  if(sizesPair){
+    // Mostra preço Simples e Duplo lado a lado igual ao cardápio impresso
+    const v1=vs[0],v2=vs[1];
+    pricesHTML=`
+      <div class="p-prices">
+        <div class="p-pricebox">
+          <div class="p-pricebox-label">${v1.label.includes('-')?v1.label.split('-')[0].trim():'SIMPLES'}</div>
+          <div class="p-pricebox-val"><small>R$</small> ${fmtPrice(p.price+(v1.extra_price||0))}</div>
+        </div>
+        <div class="p-pricebox gold">
+          <div class="p-pricebox-label">${v2.label.includes('-')?v2.label.split('-')[0].trim():'DUPLO'}</div>
+          <div class="p-pricebox-val"><small>R$</small> ${fmtPrice(p.price+(v2.extra_price||0))}</div>
+        </div>
+      </div>`;
+  } else {
+    // Apenas o preço
+    pricesHTML=`
+      <div class="p-prices">
+        <div class="p-pricebox ${useGold?'gold':''}">
+          <div class="p-pricebox-label">PREÇO</div>
+          <div class="p-pricebox-val"><small>R$</small> ${fmtPrice(p.price)}</div>
+        </div>
+      </div>`;
+  }
+
   d.innerHTML=`
+    <div class="p-info">
+      <div class="p-name ${useGold?'gold':''}">${nm}</div>
+      <div class="p-desc">${p.description||''}</div>
+      ${pricesHTML}
+      <div class="var-tags" id="vt-${p.id}" style="display:none"></div>
+      <div id="ct-${p.id}" style="margin-top:8px"></div>
+    </div>
     <div class="p-img">
       ${p.emoji}
       ${p.badge?`<div class="p-badge">${p.badge}</div>`:''}
       <div class="p-chip" id="ch-${p.id}">0</div>
-    </div>
-    <div class="p-info">
-      <div class="p-name">${nm}</div>
-      <div class="p-desc">${p.description||''}</div>
-      <div class="p-price-row">
-        <span class="p-from">${hasOpts?'de':'R$'}</span>
-        <span class="p-price">${p.price.toFixed(2).replace('.',',')}</span>
-      </div>
-      <div class="var-tags" id="vt-${p.id}" style="display:none"></div>
-    </div>
-    <div class="p-footer" id="ct-${p.id}"></div>`;
+    </div>`;
   setTimeout(()=>renderCtrl(p),0);
   return d;
 }
@@ -280,7 +397,7 @@ function renderCtrl(p){
   const t=qty(p.id);
   const hasOpts=vs.length>0;
   if(t===0||hasOpts){
-    ctrl.innerHTML=`<button class="btn-add" onclick="add(${p.id})">${hasOpts?'✦ ESCOLHER':'+ ADICIONAR'}</button>`;
+    ctrl.innerHTML=`<button class="btn-add" onclick="add(${p.id})">${hasOpts?'✦ Escolher tamanho':'+ Adicionar ao pedido'}</button>`;
   }else{
     ctrl.innerHTML=`<div class="qty">
       <button class="qty-btn m" onclick="rem(${p.id})">−</button>
@@ -345,7 +462,7 @@ function selV(label,price){
   document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.querySelector('.opt-lab').textContent===label));
   const b=document.getElementById('var-ok');
   b.disabled=false;
-  b.style.cssText='background:linear-gradient(135deg,#C8181A,#FF4500);color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(200,24,26,.4)';
+  b.style.cssText='background:linear-gradient(135deg,#E10E0E,#B30000);color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(225,14,14,.4)';
 }
 function closeVar(){document.getElementById('var-ov').style.display='none';}
 function confirmVar(){
