@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cozinha — PedeFácil</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080A0C;--surface:#0F1214;--card:#161A1E;--border:rgba(255,255,255,0.07);
+  --text:#E8EAED;--muted:rgba(255,255,255,0.4);
+  --new:#FF5C00;--prep:#0EA5E9;--done:#22C55E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.h-logo{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:var(--new);letter-spacing:1px}
+.h-live{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
+.h-live.on{color:var(--done)}
+.h-live.off{color:rgba(255,255,255,.3)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.h-live.on .live-dot{animation:pulse 2s infinite}
+.h-stats{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.h-stat{text-align:center}
+.h-stat-num{font-family:'JetBrains Mono';font-size:22px;font-weight:800;line-height:1}
+.h-stat-label{font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.h-stat.o .h-stat-num{color:var(--new)}
+.h-stat.b .h-stat-num{color:var(--prep)}
+.h-stat.g .h-stat-num{color:var(--done)}
+.h-divider{width:1px;height:36px;background:var(--border)}
+.h-time{font-family:'JetBrains Mono';font-size:22px;font-weight:800}
+.sound-btn{
+  background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;
+  transition:all .15s;font-family:'Plus Jakarta Sans';
+}
+.sound-btn.on{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.2);color:var(--done)}
+
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:12px;flex:1}
+@media(max-width:800px){.board{grid-template-columns:1fr;padding:8px}}
+
+.col{display:flex;flex-direction:column;gap:8px}
+.col-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-radius:12px;border:1px solid;margin-bottom:2px;
+}
+.col-header.cn{background:rgba(255,92,0,.08);border-color:rgba(255,92,0,.2)}
+.col-header.cp{background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.2)}
+.col-header.cd{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2)}
+.col-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px}
+.col-title.cn{color:var(--new)}.col-title.cp{color:var(--prep)}.col-title.cd{color:var(--done)}
+.col-count{font-family:'JetBrains Mono';font-size:12px;font-weight:800;padding:2px 9px;border-radius:20px}
+.col-count.cn{background:rgba(255,92,0,.15);color:var(--new)}
+.col-count.cp{background:rgba(14,165,233,.15);color:var(--prep)}
+.col-count.cd{background:rgba(34,197,94,.15);color:var(--done)}
+
+.order-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;transition:all .2s;animation:cardIn .35s ease;
+}
+.order-card:hover{border-color:rgba(255,255,255,.12)}
+.order-card.cn{border-color:rgba(255,92,0,.25);box-shadow:0 0 20px rgba(255,92,0,.08)}
+.order-card.cp{border-color:rgba(14,165,233,.2)}
+.order-card.cd{border-color:rgba(34,197,94,.15);opacity:.8}
+.o-stripe{height:3px}
+.cn .o-stripe{background:linear-gradient(90deg,var(--new),#FF9900)}
+.cp .o-stripe{background:linear-gradient(90deg,var(--prep),#38BDF8)}
+.cd .o-stripe{background:linear-gradient(90deg,var(--done),#4ADE80)}
+.o-head{padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between}
+.o-mesa{font-family:'JetBrains Mono';font-size:18px;font-weight:800}
+.o-badge{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:6px}
+.o-badge.cn{background:rgba(255,92,0,.15);color:var(--new)}
+.o-badge.cp{background:rgba(14,165,233,.15);color:var(--prep)}
+.o-badge.cd{background:rgba(34,197,94,.15);color:var(--done)}
+.o-body{padding:4px 14px 10px}
+.o-item{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;
+}
+.o-item:last-child{border-bottom:none}
+.o-qty{
+  font-family:'JetBrains Mono';font-size:11px;font-weight:800;
+  width:22px;height:22px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.07);flex-shrink:0;
+}
+.o-name{flex:1;font-size:13px}
+.o-opt{font-size:10px;color:var(--new);background:rgba(255,92,0,.1);padding:1px 5px;border-radius:4px}
+.o-foot{
+  padding:10px 14px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.o-total{font-family:'JetBrains Mono';font-size:14px;font-weight:800;color:var(--new)}
+.o-timer{font-family:'JetBrains Mono';font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.o-actions{display:flex;gap:6px;width:100%}
+.act-btn{
+  flex:1;padding:8px;border:none;border-radius:10px;
+  font-family:'Plus Jakarta Sans';font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;
+}
+.act-btn:active{transform:scale(.95)}
+.act-prep{background:var(--prep);color:#fff}
+.act-done{background:var(--done);color:#000}
+.act-cancel{background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.2)}
+
+.empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 16px;text-align:center;
+  background:rgba(255,255,255,.015);border:1px dashed rgba(255,255,255,.06);
+  border-radius:14px;min-height:100px;
+}
+.empty p{font-size:12px;color:rgba(255,255,255,.2);margin-top:8px}
+
+/* ALERT */
+.new-alert{
+  position:fixed;top:80px;right:16px;z-index:300;
+  background:var(--new);border-radius:14px;padding:14px 20px;
+  display:flex;align-items:center;gap:10px;
+  font-size:14px;font-weight:800;color:#fff;
+  box-shadow:0 8px 32px rgba(255,92,0,.4);
+  animation:alertIn .4s cubic-bezier(.22,.68,0,1.2);
+}
+.new-alert.hide{animation:alertOut .3s ease forwards}
+
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.8;box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes alertIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes alertOut{to{opacity:0;transform:translateX(60px)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="h-logo">PEDEFÁCIL</div>
+    <div class="h-live off" id="live-status"><div class="live-dot"></div><span>Conectando...</span></div>
+  </div>
+  <div class="h-stats">
+    <div class="h-stat o"><div class="h-stat-num" id="cnt-new">0</div><div class="h-stat-label">Novos</div></div>
+    <div class="h-divider"></div>
+    <div class="h-stat b"><div class="h-stat-num" id="cnt-prep">0</div><div class="h-stat-label">Preparo</div></div>
+    <div class="h-divider"></div>
+    <div class="h-stat g"><div class="h-stat-num" id="cnt-done">0</div><div class="h-stat-label">Prontos hoje</div></div>
+    <div class="h-divider"></div>
+    <div class="h-time" id="clock">--:--</div>
+    <button class="sound-btn on" id="sound-btn" onclick="toggleSound()">🔊 Som ON</button>
+  </div>
+</header>
+
+<div class="board">
+  <div class="col">
+    <div class="col-header cn">
+      <div class="col-title cn">🔔 NOVOS</div>
+      <div class="col-count cn" id="badge-new">0</div>
+    </div>
+    <div id="col-new"></div>
+  </div>
+  <div class="col">
+    <div class="col-header cp">
+      <div class="col-title cp">🍳 EM PREPARO</div>
+      <div class="col-count cp" id="badge-prep">0</div>
+    </div>
+    <div id="col-prep"></div>
+  </div>
+  <div class="col">
+    <div class="col-header cd">
+      <div class="col-title cd">✅ PRONTOS</div>
+      <div class="col-count cd" id="badge-done">0</div>
+    </div>
+    <div id="col-done"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bbyfmbywmpylwkgnxneb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJieWZtYnl3bXB5bHdrZ254bmViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MTM5MjUsImV4cCI6MjA5MjM4OTkyNX0.tqHQAie5AA-OARqpb4ASpM8uIWfz1TYFIkanN_uyYYs';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let orders = {}; // id → {order, items}
+let soundOn = true;
+let doneCount = 0;
+let audioCtx = null;
+
+// CLOCK
+function tick(){
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+}
+tick(); setInterval(tick,30000);
+
+// SOUND
+function getAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function beep(){
+  if(!soundOn) return;
+  try{
+    const ctx=getAudio();
+    [440,550,660].forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=f; o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+i*.12);
+      g.gain.linearRampToValueAtTime(.3,ctx.currentTime+i*.12+.02);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+i*.12+.2);
+      o.start(ctx.currentTime+i*.12); o.stop(ctx.currentTime+i*.12+.25);
+    });
+  }catch(e){}
+}
+function toggleSound(){
+  soundOn=!soundOn;
+  const b=document.getElementById('sound-btn');
+  b.textContent=soundOn?'🔊 Som ON':'🔇 Som OFF';
+  b.className=soundOn?'sound-btn on':'sound-btn';
+}
+
+// ALERT
+function showAlert(mesa){
+  const el=document.createElement('div');
+  el.className='new-alert';
+  el.innerHTML=`🔔 Novo pedido — <strong>Mesa ${String(mesa).padStart(2,'0')}</strong>`;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.classList.add('hide');setTimeout(()=>el.remove(),300)},4000);
+}
+
+// TIMER
+function elapsed(ts){
+  const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);
+  return m<1?'< 1 min':m+'min';
+}
+function timerColor(ts){
+  const m=Math.floor((Date.now()-new Date(ts).getTime())/60000);
+  return m>20?'#EF4444':m>12?'#F59E0B':'var(--muted)';
+}
+
+// RENDER
+function render(){
+  const cols={new:[],prep:[],done:[]};
+  Object.values(orders).forEach(o=>{
+    if(cols[o.order.status]) cols[o.order.status].push(o);
+  });
+
+  document.getElementById('cnt-new').textContent  = cols.new.length;
+  document.getElementById('cnt-prep').textContent = cols.prep.length;
+  document.getElementById('cnt-done').textContent = doneCount;
+  document.getElementById('badge-new').textContent  = cols.new.length;
+  document.getElementById('badge-prep').textContent = cols.prep.length;
+  document.getElementById('badge-done').textContent = doneCount;
+
+  const statuses = [{key:'new',cls:'cn'},{key:'prep',cls:'cp'},{key:'done',cls:'cd'}];
+  statuses.forEach(({key,cls})=>{
+    const col = document.getElementById('col-'+key);
+    const items = cols[key];
+    if(!items.length){
+      const labels={new:'Aguardando pedidos...',prep:'Nenhum em preparo',done:'Pedidos prontos aqui'};
+      const icons={new:'🕐',prep:'🍳',done:'✅'};
+      col.innerHTML=`<div class="empty"><div style="font-size:24px">${icons[key]}</div><p>${labels[key]}</p></div>`;
+      return;
+    }
+    col.innerHTML='';
+    items.sort((a,b)=>new Date(a.order.created_at)-new Date(b.order.created_at));
+    items.forEach(({order,items:oi})=>{
+      const div=document.createElement('div');
+      div.className=`order-card ${cls}`;
+      div.id='ocard-'+order.id;
+      let btns='';
+      if(order.status==='new') btns=`<button class="act-btn act-prep" onclick="advance(${order.id})">🍳 Iniciar Preparo</button><button class="act-btn act-cancel" onclick="cancel(${order.id})">✕</button>`;
+      if(order.status==='prep') btns=`<button class="act-btn act-done" onclick="advance(${order.id})">✅ Marcar Pronto</button><button class="act-btn act-cancel" onclick="cancel(${order.id})">✕ Cancelar</button>`;
+      div.innerHTML=`
+        <div class="o-stripe"></div>
+        <div class="o-head">
+          <div class="o-mesa">MESA ${String(order.mesa).padStart(2,'0')}</div>
+          <div class="o-badge ${cls}">${order.status==='new'?'NOVO 🔔':order.status==='prep'?'PREPARO':'PRONTO ✓'}</div>
+        </div>
+        <div class="o-body">
+          ${(oi||[]).map(i=>`
+            <div class="o-item">
+              <div class="o-qty">${i.qty}</div>
+              <div class="o-name">${i.product_name||'Produto'}</div>
+              ${i.variant_label?`<div class="o-opt">${i.variant_label}</div>`:''}
+            </div>`).join('')}
+        </div>
+        <div class="o-foot">
+          <div class="o-total">R$ ${parseFloat(order.total).toFixed(2).replace('.',',')}</div>
+          <div class="o-timer" id="timer-${order.id}" style="color:${timerColor(order.created_at)}">⏱ ${elapsed(order.created_at)}</div>
+          ${btns?`<div class="o-actions">${btns}</div>`:''}
+        </div>`;
+      col.appendChild(div);
+    });
+  });
+}
+
+// UPDATE STATUS
+async function advance(id){
+  const o=orders[id];
+  if(!o) return;
+  const next={new:'prep',prep:'done'}[o.order.status];
+  if(!next) return;
+  await sb.from('orders').update({status:next,updated_at:new Date().toISOString()}).eq('id',id);
+  o.order.status=next;
+  if(next==='done') doneCount++;
+  render();
+}
+async function cancel(id){
+  if(!confirm('Cancelar este pedido?')) return;
+  await sb.from('orders').update({status:'cancelled'}).eq('id',id);
+  delete orders[id];
+  render();
+}
+
+// LOAD TODAY'S ORDERS
+async function loadOrders(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const {data:ords}=await sb.from('orders')
+    .select('*')
+    .in('status',['new','prep','done'])
+    .gte('created_at',today.toISOString())
+    .order('created_at',{ascending:false});
+
+  if(!ords?.length){ render(); return; }
+
+  // Load items for each order
+  const ids=ords.map(o=>o.id);
+  const {data:items}=await sb.from('order_items').select('*').in('order_id',ids);
+
+  ords.forEach(o=>{
+    orders[o.id]={order:o,items:items.filter(i=>i.order_id===o.id)};
+    if(o.status==='done') doneCount++;
+  });
+  render();
+}
+
+// REALTIME SUBSCRIPTION
+async function subscribe(){
+  const status = document.getElementById('live-status');
+
+  sb.channel('kitchen-orders')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'orders'},
+      async payload=>{
+        const o=payload.new;
+        // Load items
+        const {data:items}=await sb.from('order_items').select('*').eq('order_id',o.id);
+        orders[o.id]={order:o,items:items||[]};
+        beep();
+        showAlert(o.mesa);
+        render();
+      }
+    )
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders'},
+      payload=>{
+        const o=payload.new;
+        if(o.status==='cancelled'){ delete orders[o.id]; render(); return; }
+        if(orders[o.id]){
+          orders[o.id].order=o;
+          render();
+        }
+      }
+    )
+    .subscribe(s=>{
+      if(s==='SUBSCRIBED'){
+        status.className='h-live on';
+        status.querySelector('span').textContent='Ao vivo';
+      } else {
+        status.className='h-live off';
+        status.querySelector('span').textContent='Reconectando...';
+      }
+    });
+}
+
+// Atualiza timers a cada minuto
+setInterval(()=>{
+  Object.values(orders).forEach(({order})=>{
+    const el=document.getElementById('timer-'+order.id);
+    if(el){el.textContent='⏱ '+elapsed(order.created_at);el.style.color=timerColor(order.created_at);}
+  });
+},60000);
+
+loadOrders();
+subscribe();
+</script>
+</body>
+</html>
