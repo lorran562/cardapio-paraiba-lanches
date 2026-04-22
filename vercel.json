@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "routes": [
+    { "src": "/cozinha", "dest": "/cozinha-tempo-real.html" },
+    { "src": "/cardapio", "dest": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
